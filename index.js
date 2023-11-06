@@ -26,12 +26,9 @@ async function run() {
     await client.connect();
 
     // collection for the database
-    const categoryCollection = client
-      .db("libraryManagementDB")
-      .collection("bookCategory");
-    const booksCollection = client
-      .db("libraryManagementDB")
-      .collection("books");
+    const categoryCollection = client.db("libraryManagementDB").collection("bookCategory");
+    const booksCollection = client.db("libraryManagementDB").collection("books");
+    const userCollection = client.db("libraryManagementDB").collection("users");
 
     // GET request to retrieve a list of Category
     app.get("/bookCategory", async (req, res) => {
@@ -99,6 +96,14 @@ async function run() {
       );
       res.send(result);
     });
+
+
+        // post method for the user collection
+        app.post("/user", async (req, res) => {
+          const user = req.body;
+          const result = await userCollection.insertOne(user);
+          res.send(result);
+        });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
