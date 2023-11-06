@@ -1,6 +1,6 @@
 const express = require("express");
 const cors = require("cors");
-const { MongoClient, ServerApiVersion } = require("mongodb");
+const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
 const app = express();
 const port = process.env.PORT || 5000;
@@ -33,10 +33,21 @@ async function run() {
       .db("libraryManagementDB")
       .collection("books");
 
-    // GET request to retrieve a list of brands
+    // GET request to retrieve a list of Category
     app.get("/bookCategory", async (req, res) => {
       const cursor = categoryCollection.find();
       const result = await cursor.toArray();
+      res.send(result);
+    });
+
+    // GET request to retrieve books for a specific Category by Category ID
+    app.get("/bookCategory/:id", async (req, res) => {
+      const id = req.params.id;
+      const filter = { _id: new ObjectId(id) };
+      const categoryNameFromData = await categoryCollection.findOne(filter);
+      const result = await booksCollection
+        .find({ CategoryName: categoryNameFromData.CategoryName })
+        .toArray();
       res.send(result);
     });
 
@@ -49,8 +60,8 @@ async function run() {
     });
 
     // GET request to retrieve a list of Books
-    app.get("/product", async (req, res) => {
-      const cursor = productCollection.find();
+    app.get("/books", async (req, res) => {
+      const cursor = booksCollection.find();
       const result = await cursor.toArray();
       res.send(result);
     });
