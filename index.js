@@ -66,6 +66,40 @@ async function run() {
       res.send(result);
     });
 
+    // GET request to retrieve books for a specific book by book ID
+    app.get("/books/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const books = await booksCollection.findOne(query);
+      console.log(books);
+      res.send(books);
+    });
+
+     // put request to retrieve books for a specific book by book ID update there information
+    app.put("/books/:id", async (req, res) => {
+      const id = req.params.id;
+      const data = req.body;
+      const filter = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updatedBooks = {
+        $set: {
+          name: data.name,
+          CategoryName: data.CategoryName,
+          type: data.type,
+          rating: data.rating,
+          content:data.content,
+          photo: data.photo,
+        },
+      };
+      // console.log(updatedProduct,filter,options);
+      const result = await booksCollection.updateOne(
+        filter,
+        updatedBooks,
+        options
+      );
+      res.send(result);
+    });
+
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
     console.log(
