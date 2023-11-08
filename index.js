@@ -10,7 +10,11 @@ const port = process.env.PORT || 5000;
 // Middleware
 app.use(
   cors({
-    origin: ["http://localhost:5173"],
+    origin: ["http://localhost:5173",
+    'https://library-management-f81b2.web.app',
+    'https://library-management-f81b2.firebaseapp.com'
+  ],
+    
     credentials: true,
   })
 );
@@ -53,7 +57,7 @@ const client = new MongoClient(uri, {
 async function run() {
   try {
     // Connect the client to the server	(optional starting in v4.7)
-    await client.connect();
+    // await client.connect();
 
     // collection for the database
     const categoryCollection = client
@@ -86,9 +90,9 @@ async function run() {
       const query = { _id: new ObjectId(id) };
       const result3 = await borrowCollection.findOne({ _id: new ObjectId(id) });
       const id2 = result3.id;
- 
+
       const result = await borrowCollection.deleteOne(query);
- 
+
       const result2 = await booksCollection.findOne({ _id: new ObjectId(id2) });
       const updatedBooks = {
         $set: {
@@ -107,6 +111,8 @@ async function run() {
       res.send(result);
     });
 
+
+   // this api for the find the id and email for the borrow
     app.get("/borrow", async (req, res) => {
       const id = req.query.id;
       const email = req.query.email;
@@ -139,7 +145,7 @@ async function run() {
     });
 
     //Books post method
-    app.post("/books", async (req, res) => {
+    app.post("/books", verifyToken, async (req, res) => {
       const user = req.body;
       // console.log(user);
       const result = await booksCollection.insertOne(user);
@@ -203,9 +209,12 @@ async function run() {
       // console.log(token);
       res
         .cookie("token", token, {
-          httpOnly: false,
-          secure: true,
-          sameSite: "none",
+          // httpOnly: false,
+          // secure: false,
+          // sameSite: "none",
+          httpOnly: true,
+                secure: process.env.NODE_ENV === 'production', 
+                sameSite: process.env.NODE_ENV === 'production' ? 'none' : 'strict',
         })
         .send({ success: true });
     });
@@ -218,7 +227,7 @@ async function run() {
     });
 
     // Send a ping to confirm a successful connection
-    await client.db("admin").command({ ping: 1 });
+    // await client.db("admin").command({ ping: 1 });
     console.log(
       "Pinged your deployment. You successfully connected to MongoDB!"
     );
