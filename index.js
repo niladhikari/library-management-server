@@ -12,7 +12,8 @@ app.use(
   cors({
     origin: ["http://localhost:5173",
     'https://library-management-f81b2.web.app',
-    'https://library-management-f81b2.firebaseapp.com'
+    'https://library-management-f81b2.firebaseapp.com',
+    'https://papaya-figolla-810414.netlify.app'
   ],
     
     credentials: true,
